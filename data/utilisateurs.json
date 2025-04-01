@@ -1,0 +1,23 @@
+[
+    {
+        "userid": 1,
+        "nom": "Peuplus",
+        "prenom": "Jean",
+        "adressecourriel": "jean.peuplus@example.com",
+        "password": "jean"
+    },
+    {
+        "userid": 2,
+        "nom": "Lantrope",
+        "prenom": "Sophie",
+        "adressecourriel": "sophie.lantrope@example.com",
+        "password": "sophie"
+    },
+    {
+        "userid": 3,
+        "nom": "Factif",
+        "prenom": "Paul",
+        "adressecourriel": "paul.factif@example.com",
+        "password": "paul"
+    }
+]
