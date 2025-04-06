@@ -9,44 +9,13 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id'];
 
-
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['add_film'])) {
-    $filmId = $_POST['filmId'];
-    $sql = "INSERT INTO prefere (USERID, FILMID, COMMENTAIRE) VALUES (:userId, :filmId, '')";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['userId' => $userId, 'filmId' => $filmId]);
-    header("Location: editFavoriteMovies.php");
-    exit();
-}
-
-
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['remove_film'])) {
-    $filmId = $_POST['filmId'];
-    $sql = "DELETE FROM prefere WHERE USERID = :userId AND FILMID = :filmId";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['userId' => $userId, 'filmId' => $filmId]);
-    header("Location: editFavoriteMovies.php");
-    exit();
-}
-
-
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['update_comment'])) {
-    $filmId = $_POST['filmId'];
-    $comment = $_POST['comment'];
-    $sql = "UPDATE prefere SET COMMENTAIRE = :comment WHERE USERID = :userId AND FILMID = :filmId";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['comment' => $comment, 'userId' => $userId, 'filmId' => $filmId]);
-    header("Location: editFavoriteMovies.php");
-    exit();
-}
-
-
+// Récupérer les films préférés de l'utilisateur
 $sql = "SELECT f.FILMID, f.TITRE, p.COMMENTAIRE FROM prefere p JOIN film f ON p.FILMID = f.FILMID WHERE p.USERID = :userId";
 $stmt = $pdo->prepare($sql);
 $stmt->execute(['userId' => $userId]);
 $favoriteMovies = $stmt->fetchAll();
 
-
+// Récupérer tous les films
 $sql = "SELECT FILMID, TITRE FROM film";
 $stmt = $pdo->query($sql);
 $allMovies = $stmt->fetchAll();
@@ -69,37 +38,48 @@ $allMovies = $stmt->fetchAll();
 
         <h2>Vos films favoris</h2>
         <ul>
-            <?php foreach ($favoriteMovies as $movie): ?>
-                <li>
-                    <strong><?= htmlspecialchars($movie['TITRE']) ?></strong>
-                    
-                    
-                    <form action="editFavoriteMovies.php" method="post" style="display:inline;">
-                        <input type="hidden" name="filmId" value="<?= $movie['FILMID'] ?>">
-                        <button type="submit" name="remove_film">Supprimer</button>
-                    </form>
+            <?php if (empty($favoriteMovies)): ?>
+                <p>Aucun film favori pour le moment.</p>
+            <?php else: ?>
+                <?php foreach ($favoriteMovies as $movie): ?>
+                    <li>
+                        <strong><?= htmlspecialchars($movie['TITRE']) ?></strong>
+                        <p>Commentaire : <?= htmlspecialchars($movie['COMMENTAIRE']) ?></p>
+                        
+                        <a href="deleteFavoriteMovie.php?filmId=<?= $movie['FILMID'] ?>">
+                        <img src="../images/deleteIcon.png" alt="Supprimer" style="width: 12px; height: 12px; margin-right: 6px;">
+                        </a>
+                        Supprimer
 
                     
-                    <form action="editFavoriteMovies.php" method="post" style="margin-top: 5px;">
-                        <input type="hidden" name="filmId" value="<?= $movie['FILMID'] ?>">
-                        <textarea name="comment" rows="2" cols="40"><?= htmlspecialchars($movie['COMMENTAIRE']) ?></textarea>
-                        <button type="submit" name="update_comment">Mettre à jour</button>
-                    </form>
-                </li>
-            <?php endforeach; ?>
+                        <a href="updateFavoriteMovie.php?filmId=<?= $movie['FILMID'] ?>">
+                        <img src="../images/modifyIcon.png" alt="Modifier" style="width: 12px; height: 12px;">
+                        </a>
+                        Modifier
+                    </li>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </ul>
 
         <h2>Ajouter un film à vos favoris</h2>
-        <form action="editFavoriteMovies.php" method="post">
-            <select name="filmId">
+        <form action="addFavoriteMovie.php" method="post">
+            <label for="filmId">Sélectionnez un film :</label>
+            <select name="filmId" id="filmId">
                 <?php foreach ($allMovies as $movie): ?>
                     <option value="<?= $movie['FILMID'] ?>"><?= htmlspecialchars($movie['TITRE']) ?></option>
                 <?php endforeach; ?>
             </select>
+
+            <label for="comment">Votre commentaire :</label>
+            <textarea name="comment" id="comment" rows="2" cols="40"></textarea>
+
             <button type="submit" name="add_film">Ajouter</button>
         </form>
 
         <p><a href="index.php">Retour à l'accueil</a></p>
     </main>
+    <footer>
+        <p>&copy; 2025 Gestion de Cinéma. Tous droits réservés.</p>
+    </footer>
 </body>
 </html>

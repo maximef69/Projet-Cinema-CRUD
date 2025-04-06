@@ -7,11 +7,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $surname = $_POST['surname'];
     $email = $_POST['email'];
     $password = $_POST['password'];
+    $confirmPassword = $_POST['confirm_password'];
 
-    
+    // Vérifier que les mots de passe correspondent
+    if ($password !== $confirmPassword) {
+        die("Erreur : Les mots de passe ne correspondent pas.");
+    }
+
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    
     if (!isset($pdo)) {
         die("Erreur : Connexion à la base de données non établie.");
     }
@@ -46,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main>
         <p>Gérez votre cinéma efficacement avec notre application. Vous pouvez ajouter, mettre à jour et supprimer des enregistrements de films, gérer les horaires des séances, et bien plus encore.</p>
 
-        
         <form action="createNewUser.php" method="post">
             <label for="name">Nom</label><br>
             <input type="text" id="name" name="name" required /><br>
@@ -60,14 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="password">Mot de passe</label><br>
             <input type="password" id="password" name="password" required /><br>
 
+            <label for="confirm_password">Confirmer le mot de passe</label><br>
+            <input type="password" id="confirm_password" name="confirm_password" required /><br>
+
             <input type="submit" name="envoyer" value="Créer l'utilisateur" />
         </form>
 
         <p><a href="index.php">Retour à la page d'accueil</a></p>
     </main>
     <footer>
-        <p>&copy; 2023 Gestion de Cinéma. Tous droits réservés.</p>
+        <p>&copy; 2025 Gestion de Cinéma. Tous droits réservés.</p>
     </footer>
 </body>
 </html>
-

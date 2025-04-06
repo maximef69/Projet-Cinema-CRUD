@@ -58,6 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$sessionActive) {
         <?php if ($sessionActive): ?>
             <p>Connecté en tant que <strong><?php echo htmlspecialchars($_SESSION['email']); ?></strong></p>
             <a href="editFavoriteMovies.php">Éditer ma liste de films préférés</a><br>
+            <a href="moviesList.php">Consulter la liste des films</a><br>
+            <a href="cinemasList.php">Consulter la liste des cinémas</a><br>
             <a href="logout.php">Se déconnecter</a>
         <?php else: ?>
             <?php if (isset($_SESSION['login_error'])): ?>
@@ -79,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$sessionActive) {
         <?php endif; ?>
     </main>
     <footer>
-        <p>&copy; 2023 Gestion de Cinéma. Tous droits réservés.</p>
+        <p>&copy; 2025 Gestion de Cinéma. Tous droits réservés.</p>
     </footer>
 </body>
 </html>
