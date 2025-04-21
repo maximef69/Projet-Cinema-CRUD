@@ -1,4 +1,39 @@
 <?php
+/*
+========================================================================
+                        ALGO
+        POUR LA CRÉATION D'UN NOUVEL UTILISATEUR
+========================================================================
+
+Début du programme
+
+1. Inclure le fichier de configuration pour la base de données
+
+2. Vérifier si la requête reçue est de type POST
+   a. Récupérer les champs du formulaire :
+      - Nom
+      - Prénom
+      - Email
+      - Mot de passe
+      - Confirmation du mot de passe
+
+   b. Vérifier si les mots de passe saisis sont identiques
+      - Si non, afficher une erreur et arrêter le programme
+
+   c. Hasher le mot de passe de manière sécurisée avec `password_hash`
+
+   d. Vérifier la connexion à la base de données
+      - Si elle n'est pas établie, afficher une erreur
+
+   e. Préparer la requête SQL pour insérer le nouvel utilisateur
+   f. Exécuter la requête avec les données sécurisées
+
+   g. Rediriger l'utilisateur vers la page d'accueil (index.php)
+
+Fin du programme
+========================================================================
+*/
+
 require_once 'config.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -10,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmPassword = $_POST['confirm_password'];
 
     // Vérifier que les mots de passe correspondent
+    
     if ($password !== $confirmPassword) {
         die("Erreur : Les mots de passe ne correspondent pas.");
     }

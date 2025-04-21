@@ -75,11 +75,11 @@ td {
     padding: 10px;
     text-align: center;
     border: 1px solid #ddd;
-    transition: transform 0.2s ease-in-out; /* Ajoute une transition douce */
+    transition: transform 0.2s ease-in-out; 
 }
 
 td:hover {
-    transform: scale(1.1); /* Zoom avant (agrandir la cellule) */
-    background-color: #f2f2f2; /* Optionnel : change la couleur de fond sur survol */
+    transform: scale(1.1); 
+    background-color: #f2f2f2; 
 }
 

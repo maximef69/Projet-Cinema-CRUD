@@ -1,4 +1,46 @@
 <?php
+/*
+========================================================================
+                         ALGO
+        POUR MODIFIER LA LISTE DE FILMS PRÉFÉRÉS
+========================================================================
+
+Début du programme
+
+1. Démarrer la session
+2. Inclure le fichier de configuration pour la base de données
+
+3. Vérifier si l'utilisateur est connecté
+   a. Si l'utilisateur n'est pas connecté, rediriger vers la page d'accueil (index.php)
+
+4. Récupérer l'ID de l'utilisateur à partir de la session
+
+5. Récupérer les films favoris de l'utilisateur dans la base de données
+   a. Exécuter une requête pour récupérer le FILMID, TITRE, et COMMENTAIRE pour chaque film préféré de l'utilisateur
+
+6. Récupérer tous les films disponibles dans la base de données
+   a. Exécuter une requête pour récupérer FILMID et TITRE de tous les films
+
+7. Si aucun film préféré n'est trouvé pour l'utilisateur, afficher un message "Aucun film favori pour le moment."
+
+8. Si des films sont trouvés, les afficher dans un tableau avec :
+   a. Le titre du film
+   b. Le commentaire de l'utilisateur
+   c. Un lien pour supprimer ou modifier ce film
+
+9. Afficher un formulaire pour permettre à l'utilisateur d'ajouter un nouveau film à sa liste de favoris
+   a. Afficher un menu déroulant avec tous les films disponibles
+   b. Ajouter un champ de texte pour permettre à l'utilisateur d'ajouter un commentaire
+
+10. Lorsque le formulaire est soumis, traiter l'ajout du film à la liste des favoris
+    a. Vérifier la validité de l'entrée et insérer le film sélectionné et le commentaire dans la base de données
+
+11. Afficher des liens de retour vers l'accueil
+
+Fin du programme
+========================================================================
+*/
+
 session_start();
 require_once 'config.php';
 
@@ -37,29 +79,38 @@ $allMovies = $stmt->fetchAll();
         <p>Gérez vos films favoris et ajoutez un commentaire personnel.</p>
 
         <h2>Vos films favoris</h2>
-        <ul>
-            <?php if (empty($favoriteMovies)): ?>
-                <p>Aucun film favori pour le moment.</p>
-            <?php else: ?>
-                <?php foreach ($favoriteMovies as $movie): ?>
-                    <li>
-                        <strong><?= htmlspecialchars($movie['TITRE']) ?></strong>
-                        <p>Commentaire : <?= htmlspecialchars($movie['COMMENTAIRE']) ?></p>
-                        
+        <?php if (empty($favoriteMovies)): ?>
+    <p>Aucun film favori pour le moment.</p>
+<?php else: ?>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Commentaire</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($favoriteMovies as $movie): ?>
+                <tr>
+                    <td><strong><?= htmlspecialchars($movie['TITRE']) ?></strong></td>
+                    <td><?= htmlspecialchars($movie['COMMENTAIRE']) ?></td>
+                    <td>
                         <a href="deleteFavoriteMovie.php?filmId=<?= $movie['FILMID'] ?>">
-                        <img src="../images/deleteIcon.png" alt="Supprimer" style="width: 12px; height: 12px; margin-right: 6px;">
+                            <img src="../images/deleteIcon.png" alt="Supprimer" style="width: 12px; height: 12px; margin-right: 6px;">
+                            Supprimer
                         </a>
-                        Supprimer
-
-                    
+                        
                         <a href="updateFavoriteMovie.php?filmId=<?= $movie['FILMID'] ?>">
-                        <img src="../images/modifyIcon.png" alt="Modifier" style="width: 12px; height: 12px;">
+                            <img src="../images/modifyIcon.png" alt="Modifier" style="width: 12px; height: 12px;">
+                            Modifier
                         </a>
-                        Modifier
-                    </li>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </ul>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php endif; ?>
 
         <h2>Ajouter un film à vos favoris</h2>
         <form action="addFavoriteMovie.php" method="post">

@@ -22,4 +22,4 @@ if (isset($_GET['filmId'])) {
     header("Location: editFavoriteMovies.php");
     exit();
 }
-?>
+

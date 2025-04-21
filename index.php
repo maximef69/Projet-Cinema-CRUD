@@ -1,4 +1,42 @@
 <?php
+/*
+========================================================================
+                            ALGO
+        POUR LA CONNEXION D'UN UTILISATEUR À L'APPLICATION
+========================================================================
+
+Début du programme
+
+1. Inclure le fichier nécessaire :
+   - Le fichier de configuration de la base de données
+2. Démarrer la session
+
+3. Vérifier si l'utilisateur est déjà connecté :
+   - Si oui, afficher les fonctionnalités de l'application
+   - Sinon, traiter la connexion
+
+4. Si une requête POST est reçue et que l'utilisateur n'est pas connecté :
+   a. Récupérer l'email et le mot de passe saisis dans le formulaire
+   b. Préparer et exécuter une requête SQL pour rechercher l'utilisateur par son email
+   c. Si un utilisateur est trouvé :
+       i. Vérifier si le mot de passe saisi correspond à celui de la base (avec `password_verify`)
+       ii. Si le mot de passe est correct :
+           - Enregistrer l'identifiant et l'email dans la session
+           - Rediriger vers la page d'accueil (index.php)
+       iii. Sinon :
+           - Stocker un message d'erreur dans la session (mot de passe incorrect)
+   d. Sinon :
+       - Stocker un message d'erreur dans la session (utilisateur introuvable)
+   e. Rediriger vers index.php
+
+5. En partie HTML :
+   - Si l'utilisateur est connecté, afficher les liens de navigation
+   - Sinon, afficher le formulaire de connexion avec d’éventuels messages d’erreur
+
+Fin du programme
+========================================================================
+*/
+
 require_once __DIR__ . '/vendor/autoload.php';
 require_once 'config.php'; 
 session_start(); 
@@ -53,8 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$sessionActive) {
         <h1>Bienvenue dans l'application de gestion de cinéma</h1>
     </header>
     <main>
-        <p>Gérez votre cinéma efficacement avec notre application. Vous pouvez ajouter, mettre à jour et supprimer des enregistrements de films, gérer les horaires des séances, et bien plus encore.</p>
-
+        <p>Gérez votre cinéma efficacement avec notre application. Vous pouvez ajouter, mettre à jour et supprimer des enregistrements de films, gérer les horaires des séances, et bien plus encore.</p>    
         <?php if ($sessionActive): ?>
             <p>Connecté en tant que <strong><?php echo htmlspecialchars($_SESSION['email']); ?></strong></p>
             <a href="editFavoriteMovies.php">Éditer ma liste de films préférés</a><br>
