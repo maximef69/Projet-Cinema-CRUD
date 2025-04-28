@@ -82,7 +82,7 @@ $allMovies = $stmt->fetchAll();
         <?php if (empty($favoriteMovies)): ?>
     <p>Aucun film favori pour le moment.</p>
 <?php else: ?>
-    <table border="1" cellpadding="8" cellspacing="0">
+    <table>
         <thead>
             <tr>
                 <th>Titre</th>
@@ -124,7 +124,7 @@ $allMovies = $stmt->fetchAll();
             <label for="comment">Votre commentaire :</label>
             <textarea name="comment" id="comment" rows="2" cols="40"></textarea>
 
-            <button type="submit" name="add_film">Ajouter</button>
+            <button type="submit" name="ajouterFilm">Ajouter</button>
         </form>
 
         <p><a href="index.php">Retour à l'accueil</a></p>

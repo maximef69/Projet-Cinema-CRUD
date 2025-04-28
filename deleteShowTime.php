@@ -13,10 +13,7 @@ if (isset($_POST['cinemaId'], $_POST['filmId'], $_POST['heureDebut'])) {
     $filmId = $_POST['filmId'];
     $heureDebut = $_POST['heureDebut'];
 
-    $sql = "DELETE FROM seance 
-            WHERE CINEMAID = :cinemaId 
-              AND FILMID = :filmId 
-              AND HEUREDEBUT = :heureDebut";
+    $sql = "DELETE FROM seance WHERE CINEMAID = :cinemaId AND FILMID = :filmId AND HEUREDEBUT = :heureDebut";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
@@ -26,7 +23,6 @@ if (isset($_POST['cinemaId'], $_POST['filmId'], $_POST['heureDebut'])) {
     ]);
 }
 
-// Rediriger vers la page d'origine
-$redirect = $_POST['from'] ?? 'cinemasList.php';
-header("Location: " . $redirect);
+
+header("Location: index.php");
 exit();

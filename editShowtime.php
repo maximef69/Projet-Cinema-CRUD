@@ -2,23 +2,21 @@
 session_start();
 require_once 'config.php';
 
-// Vérification connexion utilisateur
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
 
-// Récupération des données GET
+// Initialisation
 $cinemaId = $_GET['cinemaId'] ?? null;
 $filmId = $_GET['filmId'] ?? null;
 $heureDebut = $_GET['heureDebut'] ?? null;
-$from = $_GET['from'] ?? 'index.php'; // fallback de sécurité
-
-// Variables pour formulaire
+$from = $_GET['from'] ?? 'index.php';
 $heureFin = '';
 $version = '';
+$isUpdate = false;
 
-// Si tous les identifiants sont présents, on tente de charger la séance existante
+// Si modification : récupération de la séance
 if ($cinemaId && $filmId && $heureDebut) {
     $sql = "SELECT * FROM seance WHERE CINEMAID = :cinemaId AND FILMID = :filmId AND HEUREDEBUT = :heureDebut";
     $stmt = $pdo->prepare($sql);
@@ -32,6 +30,7 @@ if ($cinemaId && $filmId && $heureDebut) {
     if ($seance) {
         $heureFin = $seance['HEUREFIN'];
         $version = $seance['VERSION'];
+        $isUpdate = true;
     }
 }
 
@@ -42,65 +41,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $heureDebut = $_POST['heureDebut'];
     $heureFin = $_POST['heureFin'];
     $version = $_POST['version'];
-    $from = $_POST['from'];
-    $oldHeureDebut = $_POST['oldHeureDebut'] ?? $heureDebut;
+    $oldHeureDebut = $_POST['oldHeureDebut'] ?? null;
 
-    // Vérifie existence du cinéma
+    // Vérifie si le cinéma existe
     $sql = "SELECT COUNT(*) FROM cinema WHERE CINEMAID = :cinemaId";
     $stmt = $pdo->prepare($sql);
     $stmt->execute(['cinemaId' => $cinemaId]);
-    $cinemaExists = $stmt->fetchColumn();
-
-    if (!$cinemaExists) {
+    if (!$stmt->fetchColumn()) {
         die("Erreur : Le cinéma sélectionné n'existe pas.");
     }
 
-    // Vérifie si la séance existe
-    $sql = "SELECT COUNT(*) FROM seance WHERE CINEMAID = :cinemaId AND FILMID = :filmId AND HEUREDEBUT = :oldHeureDebut";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        'cinemaId' => $cinemaId,
-        'filmId' => $filmId,
-        'oldHeureDebut' => $oldHeureDebut
-    ]);
-    $exists = $stmt->fetchColumn();
-
-    if ($exists) {
-        // Mise à jour
-        $sql = "UPDATE seance 
-                SET HEUREDEBUT = :heureDebut, HEUREFIN = :heureFin, VERSION = :version 
-                WHERE CINEMAID = :cinemaId AND FILMID = :filmId AND HEUREDEBUT = :oldHeureDebut";
-        $params = [
+    // Vérifie s’il y a déjà une autre séance avec même heureDebut
+    if ($oldHeureDebut !== null && $heureDebut !== $oldHeureDebut) {
+        $sql = "SELECT COUNT(*) FROM seance 
+                WHERE CINEMAID = :cinemaId 
+                  AND FILMID = :filmId 
+                  AND HEUREDEBUT = :heureDebut 
+                  AND HEUREDEBUT != :oldHeureDebut";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
             'cinemaId' => $cinemaId,
             'filmId' => $filmId,
             'heureDebut' => $heureDebut,
+            'oldHeureDebut' => $oldHeureDebut
+        ]);
+        if ($stmt->fetchColumn()) {
+            die("Erreur : Une autre séance existe déjà avec cette heure de début.");
+        }
+    }
+
+    if ($oldHeureDebut !== null) {
+        // Mise à jour
+        $sql = "UPDATE seance
+                SET HEUREDEBUT = :heureDebut,
+                    HEUREFIN = :heureFin,
+                    VERSION = :version
+                WHERE CINEMAID = :cinemaId AND FILMID = :filmId AND HEUREDEBUT = :oldHeureDebut";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            'heureDebut' => $heureDebut,
             'heureFin' => $heureFin,
             'version' => $version,
+            'cinemaId' => $cinemaId,
+            'filmId' => $filmId,
             'oldHeureDebut' => $oldHeureDebut
-        ];
+        ]);
     } else {
         // Insertion
+        $sql = "SELECT COUNT(*) FROM seance WHERE CINEMAID = :cinemaId AND FILMID = :filmId AND HEUREDEBUT = :heureDebut";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            'cinemaId' => $cinemaId,
+            'filmId' => $filmId,
+            'heureDebut' => $heureDebut
+        ]);
+        if ($stmt->fetchColumn()) {
+            die("Erreur : Une séance existe déjà avec cette heure de début pour ce film dans ce cinéma.");
+        }
+
         $sql = "INSERT INTO seance (CINEMAID, FILMID, HEUREDEBUT, HEUREFIN, VERSION)
                 VALUES (:cinemaId, :filmId, :heureDebut, :heureFin, :version)";
-        $params = [
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
             'cinemaId' => $cinemaId,
             'filmId' => $filmId,
             'heureDebut' => $heureDebut,
             'heureFin' => $heureFin,
             'version' => $version
-        ];
+        ]);
     }
 
-    // Exécution
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-
-    // Redirection
     header("Location: $from");
     exit();
 }
 
-// Récupérer les films et cinémas
+// Récupération des films et cinémas
 $films = $pdo->query("SELECT FILMID, TITRE FROM film ORDER BY TITRE")->fetchAll();
 $cinemas = $pdo->query("SELECT CINEMAID, DENOMINATION FROM cinema ORDER BY DENOMINATION")->fetchAll();
 
@@ -112,18 +127,17 @@ $isFromCinema = str_contains($from, 'cinemaShowtime.php');
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Ajouter / Modifier une séance</title>
+    <title><?= $isUpdate ? 'Modifier' : 'Ajouter' ?> une séance</title>
     <link rel="stylesheet" href="css/cinema.css">
 </head>
 <body>
 <header>
-    <h1><?= $filmId && $heureDebut ? 'Modifier' : 'Ajouter' ?> une séance</h1>
+    <h1><?= $isUpdate ? 'Modifier' : 'Ajouter' ?> une séance</h1>
 </header>
 <main>
     <form action="editShowtime.php" method="post">
         <input type="hidden" name="from" value="<?= htmlspecialchars($from) ?>">
-
-        <?php if ($heureDebut): ?>
+        <?php if ($isUpdate): ?>
             <input type="hidden" name="oldHeureDebut" value="<?= htmlspecialchars($heureDebut) ?>">
         <?php endif; ?>
 
@@ -182,7 +196,7 @@ $isFromCinema = str_contains($from, 'cinemaShowtime.php');
 
         <!-- Version -->
         <label for="version">Version :</label>
-        <input type="text" name="version" id="version" required value="<?= htmlspecialchars($version ?? '') ?>">
+        <input type="text" name="version" id="version" required value="<?= htmlspecialchars($version) ?>">
 
         <!-- Actions -->
         <button type="submit">Enregistrer</button>
@@ -195,10 +209,9 @@ $isFromCinema = str_contains($from, 'cinemaShowtime.php');
 
 <script>
     document.querySelector('form').addEventListener('submit', function (e) {
-        const heureDebut = document.getElementById('heureDebut').value;
-        const heureFin = document.getElementById('heureFin').value;
-
-        if (heureDebut && heureFin && new Date(heureFin) <= new Date(heureDebut)) {
+        const debut = new Date(document.getElementById('heureDebut').value);
+        const fin = new Date(document.getElementById('heureFin').value);
+        if (debut >= fin) {
             alert("L'heure de fin doit être après l'heure de début.");
             e.preventDefault();
         }

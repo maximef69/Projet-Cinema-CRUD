@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Erreur : Les mots de passe ne correspondent pas.");
     }
 
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    $hashPassword = password_hash($password, PASSWORD_DEFAULT);
 
     if (!isset($pdo)) {
         die("Erreur : Connexion à la base de données non établie.");
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'name' => $name,
         'surname' => $surname,
         'email' => $email,
-        'password' => $hashedPassword
+        'password' => $hashPassword
     ]);
 
     header("Location: index.php"); 

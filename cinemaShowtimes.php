@@ -57,7 +57,8 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute(['cinemaId' => $cinemaId]);
 $cinema = $stmt->fetch();
 
-$denomination = $cinema ? $cinema['DENOMINATION'] : 'Cinéma inconnu';
+$denomination = $cinema['DENOMINATION'] ?? 'Cinéma inconnu';
+
 
 // Récupérer les séances
 $sql = "SELECT s.FILMID, s.CINEMAID, s.HEUREDEBUT, s.HEUREFIN, s.VERSION, f.TITRE AS NOM_FILM
@@ -69,7 +70,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute(['cinemaId' => $cinemaId]);
 $horaires = $stmt->fetchAll();
 
-// Fonction de formatage de date
+// Fonction pour formater la date en date française
 function formatDate($dateString) {
     $mois = [
         'Jan' => 'Jan', 'Feb' => 'Fév', 'Mar' => 'Mar', 'Apr' => 'Avr',
