@@ -55,5 +55,5 @@ Le projet est structuré de manière procédurale avec des fichiers dédiés pou
 
 1. **Cloner le dépôt** dans le dossier racine de votre serveur web (ex: `htdocs` ou `www`) :
    ```bash
-git clone [https://github.com/maximef69/Projet-Cinema-CRUD.git](https://github.com/maximef69/Projet-Cinema-CRUD.git)
+   git clone [https://github.com/maximef69/Projet-Cinema-CRUD.git](https://github.com/maximef69/Projet-Cinema-CRUD.git)
    cd Projet-Cinema-CRUD
